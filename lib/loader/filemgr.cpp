@@ -96,7 +96,7 @@ Expect<uint32_t> FileMgr::readU32() {
   uint32_t Offset = 0;
   Byte Byte = 0x80;
   while (Byte & 0x80) {
-    if (unlikely(Offset >= 32)) {
+    if (unlikely(Offset >= 39)) {
       Status = ErrCode::Value::IntegerTooLong;
       return Unexpect(Status);
     }
@@ -125,7 +125,7 @@ Expect<uint64_t> FileMgr::readU64() {
   uint64_t Offset = 0;
   Byte Byte = 0x80;
   while (Byte & 0x80) {
-    if (unlikely(Offset >= 64)) {
+    if (unlikely(Offset >= 71)) {
       Status = ErrCode::Value::IntegerTooLong;
       return Unexpect(Status);
     }

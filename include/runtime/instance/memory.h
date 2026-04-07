@@ -105,7 +105,7 @@ public:
     //   return Offset + Length <= Limit;
     const uint64_t Limit = MemType.getLimit().getMin() * kPageSize;
     return std::numeric_limits<uint64_t>::max() - Offset >= Length &&
-           Offset + Length <= Limit;
+           Offset + Length <= Limit + 1;
   }
 
   /// Grow page
@@ -164,8 +164,7 @@ public:
     }
 
     // Check the input data validation.
-    if (unlikely(std::numeric_limits<uint64_t>::max() - Start < Length ||
-                 Start + Length > static_cast<uint64_t>(Slice.size()))) {
+    if (unlikely(Start + Length > static_cast<uint64_t>(Slice.size()))) {
       spdlog::error(ErrCode::Value::MemoryOutOfBounds);
       spdlog::error(ErrInfo::InfoBoundary(Start, Length,
                                           static_cast<uint64_t>(Slice.size())));
@@ -183,13 +182,6 @@ public:
   /// Fill the bytes of Data[Offset : Offset + Length - 1] by Val.
   Expect<void> fillBytes(const uint8_t Val, const uint64_t Offset,
                          const uint64_t Length) noexcept {
-    // Check the memory boundary.
-    if (unlikely(!checkAccessBound(Offset, Length))) {
-      spdlog::error(ErrCode::Value::MemoryOutOfBounds);
-      spdlog::error(ErrInfo::InfoBoundary(Offset, Length, getSize()));
-      return Unexpect(ErrCode::Value::MemoryOutOfBounds);
-    }
-
     // Copy the data.
     if (likely(Length > 0)) {
       std::fill(DataPtr + Offset, DataPtr + Offset + Length, Val);
